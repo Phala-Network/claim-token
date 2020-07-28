@@ -3,8 +3,8 @@ const Tx = require('ethereumjs-tx');
 
 const private_key = "585e3170705ebf3d9d6002d292bb3e6e2cbab79aafd92892334c06640c98a531";
 const owner = "0x67a669349a1Fc3062b18A35d8A5ed6DdB08C4431";
-const tokenAddress = "0x6c1E38226eFD562cBabA09d59976866fA21263ab";
-const claimAddress = "0x611859d2C12A35480A372d2e290877cf51718c82";
+const tokenAddress = "0xE24051d24Ba58369Dee4Ca7ECE8A66fD4A7cBb56";
+const claimAddress = "0x789F4DD34C542E8405B8659a54b770F3eA9b07a7";
 
 const minABI = [
   // balanceOf

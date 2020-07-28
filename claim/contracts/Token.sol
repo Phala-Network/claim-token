@@ -1,5 +1,6 @@
-pragma solidity ^0.5.16;
-import './SafeMath.sol';
+pragma solidity ^0.6.0;
+
+import '@openzeppelin/contracts/math/SafeMath.sol';
 /**
  * Token
  *
@@ -40,7 +41,7 @@ contract Token {
     /**
      * Gets the token balance of any wallet.
      * @param _owner Wallet address of the returned token balance.
-     * @return The balance of tokens in the wallet.
+     * @return balance The balance of tokens in the wallet.
      */
     function balanceOf(address _owner)
         public
@@ -53,7 +54,7 @@ contract Token {
      * Transfers tokens from the sender's wallet to the specified `_to` wallet.
      * @param _to Address of the transfer's recipient.
      * @param _value Number of tokens to transfer.
-     * @return True if the transfer succeeded.
+     * @return success True if the transfer succeeded.
      */
     function transfer(address _to, uint _value) public returns (bool success) {
         balances[msg.sender] = balances[msg.sender].sub(_value);
@@ -69,7 +70,7 @@ contract Token {
      * @param _from Wallet address that tokens are withdrawn from.
      * @param _to Wallet address that tokens are deposited to.
      * @param _value Number of tokens transacted.
-     * @return True if the transfer succeeded.
+     * @return success True if the transfer succeeded.
      */
     function transferFrom(address _from, address _to, uint _value)
         public
@@ -85,7 +86,7 @@ contract Token {
      * Sender allows another wallet to `transferFrom` tokens from their wallet.
      * @param _spender Address of `transferFrom` recipient.
      * @param _value Number of tokens to `transferFrom`.
-     * @return True if the approval succeeded.
+     * @return success True if the approval succeeded.
      */
     function approve(address _spender, uint _value)
         public
@@ -100,7 +101,7 @@ contract Token {
      *     to `transferFrom`.
      * @param _owner Wallet address that tokens can be withdrawn from.
      * @param _spender Wallet address that tokens can be deposited to.
-     * @return The number of tokens allowed to be transferred.
+     * @return remaining The number of tokens allowed to be transferred.
      */
     function allowance(address _owner, address _spender)
         public

@@ -1,5 +1,5 @@
 const Web3 = require("web3");
-const Tx = require('ethereumjs-tx');
+const Tx = require("ethereumjs-tx");
 
 const private_key = "585e3170705ebf3d9d6002d292bb3e6e2cbab79aafd92892334c06640c98a531";
 const owner = "0x67a669349a1Fc3062b18A35d8A5ed6DdB08C4431";
@@ -10,15 +10,14 @@ const eth1 = "0x9B0d93e357A090D887Beb6bc0041b727BDC7734C";
 const eth2_key = "1ba9bd899664ef36eb7ee73295dc7ec3943453cb03303163d7bdb36732e424cb";
 const eth2 = "0x53B45E15752a28B70aBb9Bb65cF5F0076fC628eE";
 
-const tokenAddress = "0x6c1E38226eFD562cBabA09d59976866fA21263ab";
-const claimAddress = "0x611859d2C12A35480A372d2e290877cf51718c82";
+const tokenAddress = "0xE24051d24Ba58369Dee4Ca7ECE8A66fD4A7cBb56";
+const claimAddress = "0x789F4DD34C542E8405B8659a54b770F3eA9b07a7";
 
 const ksmAddress1 = "0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d"; //5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY
 const ksmAddress2 = "0xdc5c0eea8f8602deb7e1844b87b7635d5e5dfd5737ab5ddbcf62db78a8f7a01d"; //5Ea32SkcVaEmBVFNeMycjuAQKNzHzwosFrhEhwUFmawsEtkt
 
 const abi = [
   {
-    "constant": true,
     "inputs": [
       {
         "internalType": "uint256",
@@ -30,26 +29,25 @@ const abi = [
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "eth",
         "type": "address"
       },
       {
         "internalType": "bool",
-        "name": "",
+        "name": "claimed",
         "type": "bool"
       },
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "balance",
         "type": "uint256"
       }
     ],
-    "payable": false,
     "stateMutability": "view",
-    "type": "function"
+    "type": "function",
+    "constant": true
   },
   {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256[]",
@@ -70,12 +68,10 @@ const abi = [
         "type": "bool"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256",
@@ -96,12 +92,10 @@ const abi = [
         "type": "bool"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256",
@@ -117,12 +111,10 @@ const abi = [
         "type": "bool"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "constant": false,
     "inputs": [
       {
         "internalType": "uint256",
@@ -138,7 +130,6 @@ const abi = [
         "type": "bool"
       }
     ],
-    "payable": false,
     "stateMutability": "nonpayable",
     "type": "function"
   }
@@ -152,12 +143,12 @@ async function test() {
   let contract = new web3.eth.Contract(abi, claimAddress);
 
   //owner call
-  await test_setUnclaimedToken(web3, contract);
+  //await test_setUnclaimedToken(web3, contract);
   
-  await test_bindEthereumAddress(web3, contract, ksmAddress1, eth1);
-  await test_bindEthereumAddress(web3, contract, ksmAddress2, eth2);
+  //await test_bindEthereumAddress(web3, contract, ksmAddress1, eth1);
+  //await test_bindEthereumAddress(web3, contract, ksmAddress2, eth2);
   
-  await test_unbind(web3, contract, ksmAddress1);
+  //await test_unbind(web3, contract, ksmAddress1);
 
   //user call
   await test_claim(web3, contract, ksmAddress2, eth2, eth2_key);
@@ -235,14 +226,14 @@ async function test_unbind(web3, contract, ksm) {
   console.log(status);
 }
 
-async function test_claim(web3, contract, ksm, _to, key) {
-  let nonce = await web3.eth.getTransactionCount(_to);
+async function test_claim(web3, contract, ksm, who, key) {
+  let nonce = await web3.eth.getTransactionCount(who);
   let gasPrice = 9e10;//web3.eth.gasPrice;
   let gasLimit = 5500000;
   let raw = {
     nonce: nonce,
     value: '0x0', 
-    from: _to,
+    from: who,
     to: claimAddress,
     data: contract.methods.claim(ksm).encodeABI(), 
     gasPrice: web3.utils.toHex(gasPrice),
