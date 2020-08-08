@@ -158,13 +158,16 @@ export default {
       const contract = new window.web3.eth.Contract(abi, this.tokenAddress)
 
       contract.methods.balanceOf(this.eth_account).call().then(result => {
-        this.balance = result / 1e18
+        this.balance = Math.floor(result / 1e18)
       }).catch(error => {
         console.log(error)
       })
     },
 
     claim: function () {
+      const unclaimed = this.unclaimedToken
+      this.unclaimedToken = 0 // disabled button
+
       const abi = [
         {
           'inputs': [
@@ -193,11 +196,13 @@ export default {
       }).then(result => {
         // console.log('claim result:', result.transactionHash)
 
-        this.unclaimedToken = 0
         this.claimed = true
         this.tx_hash = result.transactionHash
+
+        this.get_token_balance()
       }).catch(error => {
         console.log(error)
+        this.unclaimedToken = unclaimed
       })
     }
   },
