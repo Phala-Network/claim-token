@@ -8,11 +8,16 @@ const query = require("./query_db");
 const {provider_url, owner_key, owner, claimAddress, abi, gasLimit, gasPrice, LAST_BLOCK_KEY} = require('./common');
 const {update_last_block, get_nominators, get_max_block} = require('./common');
 
+const web3 = new Web3();
+web3.setProvider(new web3.providers.HttpProvider(provider_url));
+
+const contract = new web3.eth.Contract(abi, claimAddress);
+
 function address2Hex(address) {
   return u8aToHex(decodeAddress(address));
 }
 
-async function setUnclaimedToken(web3, contract, ksmAddress, amount) {
+async function setUnclaimedToken(ksmAddress, amount) {
   let nonce = await web3.eth.getTransactionCount(owner);
   let raw = {
     nonce: nonce,
@@ -33,7 +38,7 @@ async function setUnclaimedToken(web3, contract, ksmAddress, amount) {
   console.log(result);
 }
 
-async function bindEthereumAddress(web3, contract, ksm, eth) {
+async function bindEthereumAddress(ksm, eth) {
   let nonce = await web3.eth.getTransactionCount(owner);
   let raw = {
     nonce: nonce,
@@ -57,11 +62,6 @@ async function bindEthereumAddress(web3, contract, ksm, eth) {
 async function setToken() {
   const size = 200;
 
-  const web3 = new Web3();
-  web3.setProvider(new web3.providers.HttpProvider(provider_url));
-
-  const contract = new web3.eth.Contract(abi, claimAddress);
-
   const sql = "select nominator, pha from stakedrop.stat_pha where pha > 0";
   const result = query.execute(sql);
   console.log(`total ${result.length} kusama accouts`);
@@ -84,7 +84,7 @@ async function setToken() {
     }
 
     if (key_array.length > 0) {
-      await setUnclaimedToken(web3, contract, key_array, pha_array); 
+      await setUnclaimedToken(key_array, pha_array); 
     }
 
     total += size;
@@ -92,11 +92,6 @@ async function setToken() {
 }
 
 async function bindAddress() {
-  const web3 = new Web3();
-  web3.setProvider(new web3.providers.HttpProvider(provider_url));
-
-  const contract = new web3.eth.Contract(abi, claimAddress);
-
   let nominators = get_nominators();
   
   let max_block = get_max_block();
@@ -114,7 +109,7 @@ async function bindAddress() {
     let eth_address = result[i].eth_address;
     //console.log(`${sub_address}:${ksm_address}:${eth_address}`);
     
-    await bindEthereumAddress(web3, contract, ksm_address, eth_address);
+    await bindEthereumAddress(ksm_address, eth_address);
 
     query.execute("update stakedrop.eth_address set status = 1 where sub_address='" + sub_address + "'");
   }
@@ -124,25 +119,41 @@ async function bindAddress() {
 
 async function main() {
   let args = process.argv.slice(2)
-  if (args.length >= 1 && args[0] == "init") {
+  if (args.length == 0) {
+    await setToken();
+    await bindAddress();
+  }
+
+  if (args.length == 1 && args[0] == "init") {
     query.execute("DELETE from stakedrop.dict where _key = '" + LAST_BLOCK_KEY +"'");
     query.execute("update stakedrop.eth_address set status = 0");
 
     return;
   }
 
-  if (args.length >= 1 && args[0] == "set") {
+  if (args.length == 1 && args[0] == "set") {
     await setToken();
     return;
   }
 
-  if (args.length >= 1 && args[0] == "bind") {
+  if (args.length >= 3 && args[0] == "set") {
+    let ksm_address = args[1];
+    let amount = args[2];
+    await setUnclaimedToken([address2Hex(ksm_address)], [web3.utils.toWei(amount)]);
+    return;
+  }
+
+  if (args.length == 1 && args[0] == "bind") {
     await bindAddress();
     return;
   }
-   
-  await setToken();
-  await bindAddress();
+
+  if (args.length >= 3 && args[0] == "bind") {
+    let ksm_address = args[1];
+    let eth_address = args[2];
+    await bindEthereumAddress(address2Hex(ksm_address), eth_address);
+    return;
+  }
 }
 
 main().catch(console.error).finally(() => process.exit());
