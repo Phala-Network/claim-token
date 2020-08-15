@@ -62,9 +62,9 @@ async function bindEthereumAddress(ksm, eth) {
 async function setToken() {
   const size = 200;
 
-  const sql = "select nominator, pha from stakedrop.stat_pha where pha > 0";
+  const sql = "select nominator, pha from stakedrop.stat_pha where end_era = 1160 and pha > 0";
   const result = query.execute(sql);
-  console.log(`total ${result.length} kusama accouts`);
+  console.log(`total ${result.length} kusama accounts`);
 
   let total = 0;
   while (total < result.length) {
@@ -101,7 +101,7 @@ async function bindAddress() {
   for (let i in result) {
     let sub_address = result[i].sub_address;
     if (nominators.indexOf(sub_address) == -1) {
-      console.log(`${sub_address} not in stakedrop`);
+      console.log(`${sub_address} is not in stakedrop account list`);
       continue;
     }
 
